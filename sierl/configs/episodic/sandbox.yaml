@@ -26,7 +26,7 @@ kwargs:
   env_fn:
     name: minigrid_envs
     kwargs:
-      env_name: MiniGrid-NineRoomsLocked-v1
+      env_name: MiniGrid-DoorKey-v1
       # env_name: MiniGrid-Hallway-v1
       # room_size: [13, 9]
       # goal_pos: [8, 4]
