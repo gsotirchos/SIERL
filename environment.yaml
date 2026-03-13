@@ -10,10 +10,10 @@ dependencies:
   - python=3.9
   - pip=21.0
   - setuptools=65.5.0
-  - gcc=12.1.0
-  - gxx=12.1.0
-  - mkl=2024.0  # crucial for pytorch CUDA
-  - cuda=11.8
+  #- gcc=12.1.0
+  #- gxx=12.1.0
+  #- mkl=2024.0  # crucial for pytorch CUDA
+  #- cuda=11.8
   - pytorch=2.0.0
   - ipython=8.18.1
   - optuna=4.5.0
@@ -44,13 +44,12 @@ dependencies:
     - wandb-osh==1.0.4
     - shimmy==2.0.0
     - git+https://github.com/chandar-lab/RLHive.git@de8f0a20a4e4760b532f244a84761e8609e34fea
-    - git+https://github.com/dapatil211/earl_benchmark.git@da7b902b64e7347a857f9b66eca0b0367d325e83
+    #- git+https://github.com/dapatil211/earl_benchmark.git@da7b902b64e7347a857f9b66eca0b0367d325e83
     #- git+https://github.com/rlworkgroup/metaworld.git@04be337a12305e393c0caf0cbf5ec7755c7c8feb
 
 variables:
   MUJOCO_GL: osmesa
 
-# 0. `pip uninstall gym`
 # 1. Download and install MuJoCo.app from:
 # 2. Install according to: https://github.com/openai/mujoco-py/issues/662#issuecomment-996081734
 # 3. `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.mujoco/mujoco210/bin`
@@ -58,3 +57,4 @@ variables:
 # 5. `git clone https://github.com/dapatil211/earl_benchmark \
 #         && mv ./earl_benchmark/earl_benchmark ${CONDA_PREFIX}/lib/python3.9/site-packages/earl_benchmark`
 # 6. `python -m minihack.scripts.download_boxoban_levels`
+# 7. `sed -i 's/^\( \{16\}timeout\)=.*$/\1=self._settings.summary_timeout,/' $CONDA_PREFIX/lib/python3.9/site-packages/wandb/sdk/wandb_run.py`

@@ -5,17 +5,17 @@
 To install all the necessary dependencies, create a Conda virtual environment using the file provided:
 
 ```
-git clone https://github.com/gsotirchos/RISC
+git clone https://github.com/******/SIERL
 conda env create -f environment.yaml
 ```
 
 
 ## Running the code
 
-The configs for running the experiments described in the paper can be found in the folder `risc/configs/`. To launch an agent, go to the `risc/` directory and run:
+The configs for running the experiments described in the paper can be found in the folder `sierl/configs/`. To launch an agent, go to the `sierl/` directory and run:
 
 ```
-cd risc/
+cd sierl/
 python main.py -c configs/episodic/sierl.yaml
 ```
 

@@ -22,8 +22,6 @@ mpl.rcParams['legend.fontsize'] = "medium"
 # mpl.rcParams['legend.fontsize'] = 12
 mpl.rcParams['legend.framealpha'] = 0.7
 
-# __file__ = "/Users/george/Desktop/RISC/risc/visualization/create_figures.py"  # DEBUG
-
 
 def load_run_data(
     env_filters,
@@ -792,7 +790,7 @@ if __name__ == "__main__":
     create_figures(
         output_dir=args.output_dir,
         # entity=args.wandb_entity,
-        entity="g-sotirchos-tu-delft",
+        entity="username",
         # project=args.wandb_project,
         project="Experiments",
         # fetch_data=(not args.no_fetch_data),
