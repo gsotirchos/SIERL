@@ -13,3 +13,4 @@ earl_benchmark/
 **/pyproject.toml
 **/template.yaml
 **/sandbox.py
+*.dir-locals.el
