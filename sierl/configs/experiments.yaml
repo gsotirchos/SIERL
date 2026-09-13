@@ -1,0 +1,233 @@
+# The experiments reported in the paper: the main comparison (Figure 2) and the
+# nine-room comparison (Figure 10). Hyperparameters are those of Appendix B,
+# Table 1 (common) and Table 2 (environment-specific).
+#
+# Every config is one of the base templates with the overrides of the "common",
+# the environment and the algorithm block applied to it, in that order. An
+# override is a dotted path into the config, and its value is either a literal
+# or a "${...}" reference to a parameter of the environment or the algorithm.
+# Overriding a path that the template defines as a YAML anchor also overrides
+# every alias of it, so e.g. setting "episode_length" propagates to the
+# environment's step limit and to the target network's update period.
+#
+# Generate the configs with "python generate_configs.py".
+
+templates:
+  sierl: episodic/sierl_minigrid.yaml
+  q-learning: episodic/q-learning.yaml
+
+run_name_path: kwargs.experiment_manager.kwargs.name
+
+seeds:  # Table 1
+  - 18995728
+  - 64493317
+  - 49789456
+  - 22114861
+  - 50259734
+  - 99918123
+  - 71729146
+  - 10365956
+  - 83575762
+  - 35232230
+
+definitions:  # only referenced by the blocks below, never applied on its own
+  hallway_kwargs: &hallway_kwargs
+    - kwargs.env_fn.kwargs.room_size
+    - kwargs.env_fn.kwargs.goal_pos
+    - kwargs.env_fn.kwargs.agent_pos
+    - kwargs.env_fn.kwargs.hallway_length
+    - kwargs.env_fn.kwargs.num_hallways
+  sierl_overrides: &sierl_overrides
+    kwargs.agent.kwargs.goal_generator.kwargs.max_familiarity: ${max_familiarity}
+    kwargs.agent.kwargs.goal_generator.kwargs.weights: ${weights}
+    kwargs.agent.kwargs.goal_generator.kwargs.random_selection: false
+    kwargs.agent.kwargs.goal_generator.kwargs.temperature_schedule.kwargs.value: ${temperature}
+    kwargs.agent.kwargs.goal_switcher.kwargs.switching_probability: ${switching_probability}
+    kwargs.agent.kwargs.phase_step_limit: ${phase_step_limit}
+  sierl_filename: &sierl_filename
+    "{env}_Ps{switching_probability}_Fm{max_familiarity}_ph{phase_step_limit}_w{weights}_s{seed}"
+
+common:
+  params:
+    action_probability: 1.0
+    novelty_bonus: 0.0
+    train_random_goals: false
+  overrides:
+    kwargs.train_steps: 1000000
+    kwargs.max_steps_per_episode: ${episode_length}
+    kwargs.test_max_steps: 80
+    kwargs.train_random_goals: ${train_random_goals}
+    kwargs.seed: ${seed}
+    kwargs.env_fn.kwargs.env_name: ${env_name}
+    kwargs.env_fn.kwargs.action_probability: ${action_probability}
+    kwargs.env_fn.kwargs.novelty_bonus: ${novelty_bonus}
+    kwargs.agent.kwargs.base_agent.kwargs.representation_net.kwargs.channels: ${channels}
+    kwargs.agent.kwargs.replay_buffer.kwargs.capacity: ${replay_capacity}
+
+# Hallway geometries are those of the MiniGrid-Hallway-{2,4,6}-v1 registrations
+# in sierl/envs/minigrid_envs.py; the other environments use their own defaults.
+environments:
+  hw2:
+    params:
+      env_name: MiniGrid-Hallway-v1
+      episode_length: 150
+      channels: [16, 16, 16]
+      replay_capacity: 100000
+      max_familiarity: 0.9
+      phase_step_limit: [2, 1, 147]
+    overrides:
+      kwargs.env_fn.kwargs.room_size: [9, 9]
+      kwargs.env_fn.kwargs.goal_pos: [4, 4]
+      kwargs.env_fn.kwargs.agent_pos: [7, 4]
+      kwargs.env_fn.kwargs.hallway_length: 2
+      kwargs.env_fn.kwargs.num_hallways: 1
+
+  hw4:
+    params:
+      env_name: MiniGrid-Hallway-v1
+      episode_length: 300
+      channels: [16, 16, 16]
+      replay_capacity: 100000
+      max_familiarity: 0.9
+      phase_step_limit: [2, 1, 297]
+    overrides:
+      kwargs.env_fn.kwargs.room_size: [11, 9]
+      kwargs.env_fn.kwargs.goal_pos: [6, 4]
+      kwargs.env_fn.kwargs.agent_pos: [9, 4]
+      kwargs.env_fn.kwargs.hallway_length: 4
+      kwargs.env_fn.kwargs.num_hallways: 1
+
+  hw6:
+    params:
+      env_name: MiniGrid-Hallway-v1
+      episode_length: 400
+      channels: [16, 16, 16]
+      replay_capacity: 100000
+      max_familiarity: 0.95
+      phase_step_limit: [2, 1, 397]
+    overrides:
+      kwargs.env_fn.kwargs.room_size: [13, 9]
+      kwargs.env_fn.kwargs.goal_pos: [8, 4]
+      kwargs.env_fn.kwargs.agent_pos: [11, 4]
+      kwargs.env_fn.kwargs.hallway_length: 6
+      kwargs.env_fn.kwargs.num_hallways: 1
+
+  4r:
+    params:
+      env_name: MiniGrid-FourRooms-v1
+      episode_length: 500
+      channels: [16, 16, 16, 16, 16, 16, 16]
+      replay_capacity: 300000
+      max_familiarity: 0.8
+      phase_step_limit: [2, 1, 497]
+    remove: *hallway_kwargs
+
+  bt:
+    params:
+      env_name: MiniGrid-BugTrap-v1
+      episode_length: 500
+      channels: [16, 16, 16, 16, 16, 16, 16]
+      replay_capacity: 300000
+      max_familiarity: 0.7
+      phase_step_limit: [2, 1, 497]
+    remove: *hallway_kwargs
+
+  # The nine-room environments are not in Table 2; they use the FourRooms and
+  # BugTrap settings and the familiarity threshold that Figure 10 was plotted
+  # with (see visualization/create_figures.py).
+  9r:
+    params:
+      env_name: MiniGrid-NineRooms-v1
+      episode_length: 500
+      channels: [16, 16, 16, 16, 16, 16, 16]
+      replay_capacity: 300000
+      max_familiarity: 0.8
+      phase_step_limit: [2, 1, 497]
+    remove: *hallway_kwargs
+
+  9rl:
+    params:
+      env_name: MiniGrid-NineRoomsLocked-v1
+      episode_length: 500
+      channels: [16, 16, 16, 16, 16, 16, 16]
+      replay_capacity: 300000
+      max_familiarity: 0.8
+      phase_step_limit: [2, 1, 497]
+    remove: *hallway_kwargs
+
+algorithms:
+  sierl:
+    template: sierl
+    directory: experiments
+    filename: *sierl_filename
+    params:
+      switching_probability: 1.0  # P_switch = 100% (Table 1)
+      weights: [1.5, 0.0, 1.0, 0.5]  # c_n, c_c, c_g = 1.5, 1.0, 0.5 (Table 1)
+      temperature: 0.5  # softmin temperature (Table 1)
+    overrides: *sierl_overrides
+
+  # MEGA as a special case of SIERL: sub-goals sampled from the whole replay
+  # buffer, prioritized by novelty alone (Appendix D.5)
+  mega:
+    template: sierl
+    directory: experiments
+    environments: [9r, 9rl]
+    filename: *sierl_filename
+    params:
+      switching_probability: 1.0
+      weights: [-1.0, 0.0, 0.0, 0.0]
+      temperature: 0.5
+      max_familiarity: 1.0
+    overrides: *sierl_overrides
+
+  q-learning:
+    template: q-learning
+    directory: baselines
+    filename: "{env}_nb{novelty_bonus}_her{her_ratio}_s{seed}_q-learning"
+    params:
+      novelty_bonus: 0
+      her_ratio: 0
+    overrides: &baseline_overrides
+      kwargs.agent.kwargs.replay_buffer.kwargs.her_ratio: ${her_ratio}
+
+  random-goals-q-learning:
+    template: q-learning
+    directory: baselines
+    filename: "{env}_nb{novelty_bonus}_her{her_ratio}_s{seed}_rand_q-learning"
+    params:
+      novelty_bonus: 0
+      her_ratio: 0
+      train_random_goals: true
+    overrides: *baseline_overrides
+
+  her:
+    template: q-learning
+    directory: baselines
+    filename: "{env}_nb{novelty_bonus}_her{her_ratio}_s{seed}_q-learning"
+    params:
+      novelty_bonus: 0
+      her_ratio: 0.5
+    overrides: *baseline_overrides
+
+  novelty-bonuses:
+    template: q-learning
+    directory: baselines
+    filename: "{env}_nb{novelty_bonus}_her{her_ratio}_s{seed}_q-learning"
+    params:
+      novelty_bonus: 0.15
+      her_ratio: 0
+    overrides: *baseline_overrides
+
+# The ablations (Figure 3) and the sensitivity studies (Figures 4-7) are added
+# as further algorithms on the environments they were run on:
+#   no early switching:    switching_probability: 0.0, on hw6 and 4r
+#   no frontier filtering: max_familiarity: 1.0, on hw6 and 4r
+#   no prioritization:     random_selection: true, on hw6 and 4r
+#   familiarity threshold: max_familiarity: 0.01 / 0.5 / 0.8 / 0.95, on hw4
+#   softmin temperature:   temperature: 0.1 / 1.5, on hw4
+#   novelty weight:        weights: [0.5, 0.0, 1.0, 0.5] / [3.0, 0.0, 1.0, 0.5]
+#   path cost weights:     weights: [1.0, 0.0, 0.0, 1.0] (c_c = 0)
+#                                   [1.0, 0.0, 1.0, 0.0] (c_g = 0)
+#                                   [1.0, 0.0, 1.0, 1.0] (c_c = c_g)
+# The probabilistic transitions of Figure 8 are an hw4 environment with
+# action_probability: 0.8.
